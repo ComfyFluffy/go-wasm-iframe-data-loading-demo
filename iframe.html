@@ -1,0 +1,28 @@
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <script src="wasm_exec.js"></script>
+  <script>
+    const go = new Go();
+    WebAssembly.instantiateStreaming(fetch("main.wasm"), go.importObject).then((result) => {
+      go.run(result.instance);
+      console.log(result.instance)
+      // Trigger a custom event to let the parent window know that the WASM module has loaded
+      window.loadData = (view) => {
+        // For maybe a bug in Go WASM, we need to
+        // copy the view to a new Uint8Array so that
+        // the function can be called from out of 
+        // iframe.
+        const copiedView = new Uint8Array(view);
+        goLoadData(copiedView);
+      }
+
+      window.dispatchEvent(new Event('wasmLoad'));
+    });
+  </script>
+</head>
+
+<body></body>
+
+</html>

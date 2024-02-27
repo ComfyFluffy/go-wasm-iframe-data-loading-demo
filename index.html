@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <h1>WASM data loading test</h1>
+  <iframe id="wasmFrame" src="iframe.html"></iframe>
+  <script>
+    // Example ArrayBuffer to pass
+    const zipResp = fetch('/test.zip')
+
+    // Access the iframe's window object
+    const iframe = document.getElementById('wasmFrame');
+    iframe.onload = () => {
+      const wasmWindow = iframe.contentWindow;
+      console.log('iframe loaded');
+      console.log(wasmWindow)
+      window.wasmWindow = wasmWindow;
+
+      // Wait for the WASM module to initialize
+      wasmWindow.addEventListener('wasmLoad', async () => {
+        console.log('WASM module loaded');
+        const r = await zipResp
+        const buf = await r.arrayBuffer();
+        wasmWindow.loadData(buf);
+      });
+    };
+  </script>
+</body>
+
+</html>
